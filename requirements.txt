@@ -1,0 +1,8 @@
+streamlit
+ollama
+pandas
+plotly
+langchain
+langchain-ollama
+langchain-core
+langchain-community
