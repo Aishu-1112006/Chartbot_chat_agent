@@ -5,7 +5,6 @@ import plotly.express as px
 
 DB_PATH = "sample.db"
 
-# Tool 1: Get Schema
 def get_schema():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -23,7 +22,6 @@ def get_schema():
     conn.close()
     return json.dumps(schema, indent=2)
 
-# Tool 2: Execute Query
 def execute_query(sql):
     try:
         conn = sqlite3.connect(DB_PATH)
@@ -31,9 +29,8 @@ def execute_query(sql):
         conn.close()
         return df
     except Exception as e:
-        return f"Error: {str(e)}"
+        return None
 
-# Tool 3: Generate Chart
 def generate_chart(df, chart_type, x_col, y_col, title):
     try:
         if chart_type == "bar":
@@ -50,49 +47,28 @@ def generate_chart(df, chart_type, x_col, y_col, title):
     except Exception:
         return None
 
-# Tool 4: Generate Flowchart
 def generate_flowchart(diagram_type="er"):
-    er_diagram = (
-        "erDiagram\n"
-        "    CUSTOMERS ||--o{ ORDERS : places\n"
-        "    PRODUCTS ||--o{ ORDERS : contains\n"
-        "    ORDERS {\n"
-        "        int id\n"
-        "        int customer_id\n"
-        "        int product_id\n"
-        "        int quantity\n"
-        "        float revenue\n"
-        "    }\n"
-        "    CUSTOMERS {\n"
-        "        int id\n"
-        "        string name\n"
-        "        string email\n"
-        "        string city\n"
-        "    }\n"
-        "    PRODUCTS {\n"
-        "        int id\n"
-        "        string name\n"
-        "        string category\n"
-        "        float price\n"
-        "    }"
-    )
+    er_diagram = """erDiagram
+    CUSTOMERS ||--o{ ORDERS : places
+    PRODUCTS ||--o{ ORDERS : contains
+    CUSTOMERS { int id string name string city }
+    PRODUCTS { int id string name float price }
+    ORDERS { int id int quantity float revenue }"""
 
-    process_diagram = (
-        "flowchart TD\n"
-        "    A[User Question] --> B[LLM understands it]\n"
-        "    B --> C[Generate SQL Query]\n"
-        "    C --> D[Run on Database]\n"
-        "    D --> E[Get Results]\n"
-        "    E --> F[Generate Chart]\n"
-        "    F --> G[Show Answer to User]"
-    )
+    process_diagram = """flowchart LR
+    A[User Question] --> B[LLM]
+    B --> C{DB?}
+    C -->|Yes| D[SQL]
+    C -->|No| G[Answer]
+    D --> E[(DB)]
+    E --> F[Chart]
+    F --> I[Show User]
+    G --> I"""
 
     if diagram_type == "er":
         return er_diagram
     else:
         return process_diagram
-
-# Tool 5: Explain Data
 def explain_data(df):
     if isinstance(df, pd.DataFrame) and not df.empty:
         summary = f"Found {len(df)} records with {len(df.columns)} columns.\n"
